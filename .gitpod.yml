@@ -1,11 +1,18 @@
+image:
+  file: .gitpod.Dockerfile
+
 tasks:
-  - init: |
-      curl -1sLf \
-        'https://packages.vectorized.io/nzc4ZYQK3WRGd9sy/redpanda/cfg/setup/bash.deb.sh' \
-        | sudo -E bash
-        sudo apt-get install redpanda
-  - command: |
-      rpk container start
+  - name: Redpanda
+    init: gp sync-await bundle
+    command: rpk container start
+
+  - name: Redis
+    init: gp sync-await bundle
+    command: redis-server
+
+  - name: Pre-build
+    init: gp sync-await bundle
+    command: go build ./...
 
 github:
   prebuilds:
