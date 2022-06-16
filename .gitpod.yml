@@ -22,7 +22,7 @@ tasks:
     command: redis-server
 
   - name: Pre-build
-    command: go build ./...
+    command: make
 
 github:
   prebuilds:
