@@ -3,7 +3,8 @@ image:
 
 tasks:
   - name: Redpanda
-    command: docker run -d --pull=always --name=redpanda-1 --rm \                                                                                                                          INT ✘
+    command: >
+      docker run -d --pull=always --name=redpanda-1 --rm \                                                                                                                          INT ✘
       -p 8081:8081 \
       -p 8082:8082 \
       -p 9092:9092 \
@@ -17,7 +18,7 @@ tasks:
       --node-id 0 \
       --check=false
 
-- name: Redis
+  - name: Redis
     command: redis-server
 
   - name: Pre-build
