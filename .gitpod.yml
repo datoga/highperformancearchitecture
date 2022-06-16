@@ -3,15 +3,12 @@ image:
 
 tasks:
   - name: Redpanda
-    init: gp sync-await bundle
     command: rpk container start
 
   - name: Redis
-    init: gp sync-await bundle
     command: redis-server
 
   - name: Pre-build
-    init: gp sync-await bundle
     command: go build ./...
 
 github:
