@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill-kafka/v2/pkg/kafka"
@@ -10,12 +9,17 @@ import (
 	"github.com/ThreeDotsLabs/watermill/message/router/middleware"
 	"github.com/ThreeDotsLabs/watermill/message/router/plugin"
 	"github.com/ThreeDotsLabs/watermill/pubsub/gochannel"
-	"github.com/datoga/highperformancearchitecture"
 	"github.com/datoga/highperformancearchitecture/cmd/common/flags"
-	"github.com/go-redis/redis/v8"
+	"github.com/datoga/highperformancearchitecture/cmd/common/stats"
 )
 
+var statsManager stats.Stats
+
 func main() {
+	statsManager = stats.New()
+
+	go statsManager.Run()
+
 	logger := watermill.NewStdLogger(*flags.Debug, *flags.Trace)
 
 	router, err := message.NewRouter(message.RouterConfig{}, logger)
@@ -26,6 +30,7 @@ func main() {
 	router.AddPlugin(plugin.SignalsHandler)
 
 	router.AddMiddleware(
+		middleware.InstantAck,
 		middleware.Recoverer,
 	)
 
@@ -65,51 +70,39 @@ func main() {
 		)
 	}
 
-	rdb := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "",
-		DB:       0,
-	})
+	rdb := CreateRedisClient()
 
 	defer rdb.Close()
+
+	redisHandler := NewRedisHandler(rdb)
+
+	if *flags.Debug {
+		redisHandler = redisHandler.WithDebug()
+	}
 
 	router.AddNoPublisherHandler(
 		"update_redis",
 		internalTopic,
 		pubSub,
-		func(msg *message.Message) error {
-			var currencyUpdate highperformancearchitecture.CurrencyUpdate
+		redisHandler.Handle,
+	)
 
-			if err := json.Unmarshal(msg.Payload, &currencyUpdate); err != nil {
-				return err
-			}
-
-			key := currencyUpdate.Exchange.Origin + "_" + currencyUpdate.Exchange.Target
-			value := currencyUpdate.Exchange.Rate
-
-			//TODO: ASYNC
-			err := rdb.Set(
-				msg.Context(),
-				key,
-				value,
-				0,
-			).Err()
-
-			if err != nil {
-				return err
-			}
-
-			if *flags.Debug {
-				fmt.Printf("Key %s updated with value %f\n", key, value)
-			}
-
-			return nil
-		},
+	router.AddNoPublisherHandler(
+		"count_messages",
+		internalTopic,
+		pubSub,
+		countMessage,
 	)
 
 	if err = router.Run(context.Background()); err != nil {
 		panic(err)
 	}
+}
+
+func countMessage(_ *message.Message) error {
+	statsManager.CountMessage()
+
+	return nil
 }
 
 func printMessages(msg *message.Message) error {

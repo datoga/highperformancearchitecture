@@ -7,6 +7,7 @@ require (
 	github.com/ThreeDotsLabs/watermill-kafka/v2 v2.2.2
 	github.com/biter777/countries v1.3.4
 	github.com/go-redis/redis/v8 v8.11.5
+	github.com/json-iterator/go v1.1.12
 	github.com/oklog/ulid/v2 v2.0.2
 )
 
@@ -33,6 +34,8 @@ require (
 	github.com/jcmturner/rpc/v2 v2.0.3 // indirect
 	github.com/klauspost/compress v1.15.6 // indirect
 	github.com/lithammer/shortuuid/v3 v3.0.7 // indirect
+	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
+	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/pierrec/lz4/v4 v4.1.14 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
