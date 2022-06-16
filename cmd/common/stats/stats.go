@@ -5,33 +5,33 @@ import (
 	"time"
 )
 
+const defaultPeriod = 5
+
 type Stats struct {
-	messages uint
-	init     time.Time
+	periodInSeconds uint
+	totalMessages   uint
+	messages        uint
 }
 
 func New() Stats {
-	return Stats{
-		init: time.Now(),
-	}
+	return Stats{periodInSeconds: defaultPeriod}
 }
 
 func (s *Stats) CountMessage() {
+	s.totalMessages++
 	s.messages++
 }
 
 func (s *Stats) Run() {
 	for {
-		time.Sleep(time.Second)
-
-		now := time.Now()
-
-		elapsed := now.Sub(s.init)
+		time.Sleep(time.Duration(s.periodInSeconds) * time.Second)
 
 		fmt.Printf("\n\n")
-		fmt.Printf("------------------------------------------\n")
-		fmt.Printf("Elapsed: %v, Messages: %v, Rate: %.02f messages/s\n", elapsed, s.messages, float64(s.messages)/elapsed.Seconds())
-		fmt.Printf("------------------------------------------\n")
+		fmt.Printf("----------------------------------------------\n")
+		fmt.Printf("Total messages: %v, Rate: %.02f messages/s\n", s.totalMessages, float64(s.messages)/float64(s.periodInSeconds))
+		fmt.Printf("----------------------------------------------\n")
 		fmt.Printf("\n\n")
+
+		s.messages = 0
 	}
 }
