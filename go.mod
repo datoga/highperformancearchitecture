@@ -6,7 +6,7 @@ require (
 	github.com/ThreeDotsLabs/watermill v1.1.1
 	github.com/ThreeDotsLabs/watermill-kafka/v2 v2.2.2
 	github.com/biter777/countries v1.3.4
-	github.com/go-redis/redis/v8 v8.11.5
+	github.com/go-redis/redis/v9 v9.5.1
 	github.com/json-iterator/go v1.1.12
 	github.com/oklog/ulid/v2 v2.0.2
 )
